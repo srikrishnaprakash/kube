@@ -4,11 +4,11 @@
 
 curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
 chmod +x ./kubectl
-mv ./kubectl /usr/local/bin/kubectl
+sudo mv ./kubectl /usr/local/bin/kubectl
 
 export REGION=us-east-1
 export KOPS_STATE_STORE=s3://<bucketname> 
-export NAME=jpalearn.k8s.localsudo 
+export NAME=jpalearn.k8s.local
 
 ssh-keygen
 kops create cluster $NAME  --cloud=aws --networking=flannel \
