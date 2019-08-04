@@ -1,0 +1,29 @@
+ $ curl -Lo kops https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
+ chmod +x ./kops
+ sudo mv ./kops /usr/local/bin/
+
+curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+chmod +x ./kubectl
+mv ./kubectl /usr/local/bin/kubectl
+
+export REGION=us-east-1
+export KOPS_STATE_STORE=s3://<bucketname> 
+export NAME=jpalearn.k8s.localsudo 
+
+ssh-keygen
+kops create cluster $NAME  --cloud=aws --networking=flannel \
+  --topology=public \
+  --master-count=1 \
+  --master-size=t2.micro \
+  --master-zones=us-east-1a \
+  --node-count=2 \
+  --node-size=t2.micro \
+  --zones=us-east-1a,us-east-1b \
+  --state=$KOPS_STATE_STORE
+
+kops update cluster $NAME --yes
+kops create secret --name $NAME  sshpublickey admin -i ~/.ssh/id_rsa.pub
+kubectl run nginx --image=nginx --port=80
+kubectl expose deployment nginx --type=NodePort
+kubectl cluster-info
+kubectl get nodes
